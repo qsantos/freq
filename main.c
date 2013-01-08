@@ -5,9 +5,6 @@
 
 typedef unsigned char u8;
 
-static size_t blocksize = 0;
-static char*  buffer    = NULL;
-
 static char bstrncmp(const char* a, const char* b, size_t n)
 {
 	for (; n; n--, a++, b++)
@@ -16,14 +13,14 @@ static char bstrncmp(const char* a, const char* b, size_t n)
 	return 0;
 }
 
-static void swap(char* a, char* b)
+static void swap(char* a, char* b, size_t blocksize, char* buffer)
 {
 	memcpy(buffer, a,      blocksize);
 	memcpy(a,      b,      blocksize);
 	memcpy(b,      buffer, blocksize);
 }
 
-static void quicksort(char* left, char* right)
+static void quicksort(char* left, char* right, size_t blocksize, char* buffer)
 {
 	if (left >= right)
 		return;
@@ -34,14 +31,14 @@ static void quicksort(char* left, char* right)
 	for (char* i = left; i < right; i += blocksize)
 		if (bstrncmp(i, pivotValue, blocksize) < 0)
 		{
-			swap(i, storeIndex);
+			swap(i, storeIndex, blocksize, buffer);
 			storeIndex += blocksize;
 		}
-	swap(storeIndex, right);
+	swap(storeIndex, right, blocksize, buffer);
 
 	if (storeIndex > left)
-		quicksort(left, storeIndex - blocksize);
-	quicksort(storeIndex + blocksize, right);
+		quicksort(left, storeIndex - blocksize, blocksize, buffer);
+	quicksort(storeIndex + blocksize, right, blocksize, buffer);
 }
 
 static void usage(int argc, char** argv)
@@ -79,10 +76,14 @@ int main(int argc, char** argv)
 		exit(1);
 	}
 
-	blocksize = atoll(argv[1]);
-	buffer    = malloc(blocksize);
+
+	// initialize parameters
+	size_t blocksize = atoll(argv[1]);
+	char*  buffer    = malloc(blocksize);
 	assert(buffer);
 
+
+	// load the file
 	FILE* f = fopen(argv[2], "r");
 
 	fseek(f, 0, SEEK_END);
@@ -94,12 +95,19 @@ int main(int argc, char** argv)
 	fread(content, 1, size, f);
 	fclose(f);
 
-	quicksort(content, content + size);
 
-	for (size_t i = 0; i < 512; )
+	// sort all that random data
+	quicksort(content, content + size, blocksize, buffer);
+
+
+	for (size_t i = 0; i < size; )
 	{
-		for (int j = 0; j < 8; i++, j++)
-			printf("%.2x", (u8) content[i]);
+		for (int j = 0; j < 4; j++)
+		{
+			for (int k = 0; k < 8; k++, i++)
+				printf("%.2x", (u8) content[i]);
+			printf(" ");
+		}
 		printf("\n");
 	}
 
