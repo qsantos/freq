@@ -103,7 +103,8 @@ int main(int argc, char** argv)
 	// sort all that random data
 	quicksort(content, content + size, blocksize, buffer);
 
-
+	// print the sorted contents
+	/*
 	for (size_t i = 0; i < size; )
 	{
 		for (int j = 0; j < 4; j++)
@@ -114,6 +115,46 @@ int main(int argc, char** argv)
 		}
 		printf("\n");
 	}
+	*/
 
+
+	// count similar blocks
+	size_t* counts    = NULL;
+	size_t  n_counts  = 0;
+	size_t  a_counts  = 0;
+
+	size_t  cur_count = 0;
+	char*   cur_block = content;
+	for (char* block = content; block < content + size; block += blocksize)
+	{
+		if (bstrncmp(block, cur_block, blocksize) != 0)
+		{
+			if (n_counts >= a_counts)
+			{
+				a_counts = a_counts ? 2*a_counts : 1;
+				counts = realloc(counts, a_counts*sizeof(size_t));
+			}
+			counts[n_counts] = cur_count;
+			memcpy(content + n_counts*blocksize, cur_block, blocksize);
+			n_counts++;
+
+			cur_count = 0;
+			cur_block = block;
+		}
+
+		cur_count++;
+	}
+
+	for (size_t i = 0; i < n_counts; i++)
+	{
+		printf("%u ", counts[i]);
+		for (size_t j = 0; j < blocksize; j++)
+			printf("%.2x", (u8) content[blocksize*i+j]);
+		printf("\n");
+	}
+
+	free(counts);
+	free(content);
+	free(buffer);
 	return 0;
 }
