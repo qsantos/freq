@@ -25,7 +25,11 @@ static void quicksort(char* left, char* right, size_t blocksize, char* buffer)
 	if (left >= right)
 		return;
 	
-//	swap((left+right)/2, right); // TODO
+	// computes some blocksize-aligned index in the left-right range
+	// (somewhat around the middle)
+	char* pivotIdx = (char*) (blocksize  *  (((size_t)left+(size_t)right)/2 / blocksize));
+	swap(pivotIdx, right, blocksize, buffer);
+
 	char* pivotValue = right;
 	char* storeIndex = left;
 	for (char* i = left; i < right; i += blocksize)
