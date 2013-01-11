@@ -27,7 +27,8 @@ static void quicksort(char* left, char* right, size_t blocksize, char* buffer)
 	
 	// computes some blocksize-aligned index in the left-right range
 	// (somewhat around the middle)
-	char* pivotIdx = (char*) (blocksize  *  (((size_t)left+(size_t)right)/2 / blocksize));
+	// left+right / 2 may overflow size_t
+	char* pivotIdx = (char*) ((size_t)left + blocksize  *  (((size_t)right-(size_t)left)/2 / blocksize));
 	swap(pivotIdx, right, blocksize, buffer);
 
 	char* pivotValue = right;
@@ -101,21 +102,7 @@ int main(int argc, char** argv)
 
 
 	// sort all that random data
-	quicksort(content, content + size, blocksize, buffer);
-
-	// print the sorted contents
-	/*
-	for (size_t i = 0; i < size; )
-	{
-		for (int j = 0; j < 4; j++)
-		{
-			for (int k = 0; k < 8; k++, i++)
-				printf("%.2x", (u8) content[i]);
-			printf(" ");
-		}
-		printf("\n");
-	}
-	*/
+	quicksort(content, content + size - blocksize, blocksize, buffer);
 
 
 	// count similar blocks
@@ -125,7 +112,7 @@ int main(int argc, char** argv)
 
 	size_t  cur_count = 0;
 	char*   cur_block = content;
-	for (char* block = content; block < content + size; block += blocksize)
+	for (char* block = content; block <= content + size - blocksize; block += blocksize)
 	{
 		if (bstrncmp(block, cur_block, blocksize) != 0)
 		{
