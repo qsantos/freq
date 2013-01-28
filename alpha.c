@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#define LANG french
 #include "freq.h" // letter frequencies
 
 static char* readFile(FILE* f)
@@ -52,7 +53,7 @@ static char bestShift(float freq[26])
 		float score = 0;
 		for (int j = 0; j < 26; j++)
 		{
-			float diff = freq[(j+i)%26] - english[j];
+			float diff = freq[(j+i)%26] - LANG[j];
 			score += diff*diff;
 		}
 		if (score < best_score)
