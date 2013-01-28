@@ -81,9 +81,9 @@ int main(int argc, char** argv)
 		for (char* c = key; *c; c++, len++)
 		{
 			if ('A' <= *c && *c <= 'Z')
-				*c = encrypt ? *c - 'A' + 1 : (26 - *c + 'A' - 1);
+				*c = encrypt ? *c - 'A' : (26 - *c + 'A');
 			else if ('a' <= *c && *c <= 'z')
-				*c = encrypt ? *c - 'a' + 1 : (26 - *c + 'A' - 1);
+				*c = encrypt ? *c - 'a' : (26 - *c + 'A');
 			else
 			{
 				fprintf(stderr, "Sorry, I could not understand the key\n");

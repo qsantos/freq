@@ -66,11 +66,11 @@ static void usage(int argc, char** argv)
 	(void) argc;
 
 	fprintf(stderr,
-		"Usage: %s keylen [file]\n"
+		"Usage: %s keylen file\n"
 		"Performs a statical analysis on a file\n"
 		"\n"
 		"  keylen  assumed length of the key\n"
-		"  file    input file (default: stdin)\n"
+		"  file    input file\n"
 		,
 		argv[0]
 	);
@@ -78,13 +78,13 @@ static void usage(int argc, char** argv)
 
 int main(int argc, char** argv)
 {
-	if (argc < 2)
+	if (argc < 3)
 	{
 		usage(argc, argv);
 		exit(0);
 	}
 
-	FILE* f = argc < 3 ? stdin : fopen(argv[2], "r");
+	FILE* f = fopen(argv[2], "r");
 	if (!f)
 	{
 		fprintf(stderr, "Could not open file '%s'\n", argv[2]);
@@ -103,6 +103,7 @@ int main(int argc, char** argv)
 		float freq[26];
 		computeFreqs(freq, content, length, i, keylen);
 		char shift = bestShift(freq);
+		printf("%i\n", shift);
 		key[i] = 'A' + shift;
 	}
 
