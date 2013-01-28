@@ -1,12 +1,9 @@
 CFLAGS  = -Wall -Wextra -Werror -pedantic -std=c99 -O3 -D_XOPEN_SOURCE=700
 LDFLAGS = -O3
 
-all: block alpha
+all: block alpha shift
 
-block: block.c
-	gcc $(LDFLAGS) $(CFLAGS) $^ -o $@
-
-alpha: alpha.c
+%: %.c
 	gcc $(LDFLAGS) $(CFLAGS) $^ -o $@
 
 %.o: %.c
