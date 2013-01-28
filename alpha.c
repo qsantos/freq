@@ -55,7 +55,7 @@ static char bestShift(float freq[26])
 		float score = 0;
 		for (int j = 0; j < 26; j++)
 		{
-			float diff = freq[j] - ref[(j+i)%26];
+			float diff = freq[(j+i)%26] - ref[j];
 			score += diff*diff;
 		}
 		if (score < best_score)
@@ -107,9 +107,7 @@ int main(int argc, char** argv)
 	{
 		float freq[26];
 		computeFreqs(freq, content+i, keylen);
-		char shift = bestShift(freq);
-		printf("%i\n", shift);
-		key[i] = 'Z' - shift + 1;
+		key[i] = 'A' + bestShift(freq);
 	}
 
 	if (keylen == 1)

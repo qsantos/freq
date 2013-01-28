@@ -98,12 +98,12 @@ int main(int argc, char** argv)
 		if (feof(src))
 			break;
 		if ('A' <= c && c <= 'Z')
-			fputc('A' + ((c+key[s] - 'A')%26), dst);
+			fputc('A' + ((c+key[s++] - 'A')%26), dst);
 		else if ('a' <= c && c <= 'z')
-			fputc('a' + ((c+key[s] - 'a')%26), dst);
+			fputc('a' + ((c+key[s++] - 'a')%26), dst);
 		else
 			fputc(c, dst);
-		if (++s >= len)
+		if (s >= len)
 			s = 0;
 	}
 
