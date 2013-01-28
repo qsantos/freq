@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 static const float ref[26] =
 {
@@ -9,53 +10,37 @@ static const float ref[26] =
 	0.01974, 0.00074,
 };
 
-static void usage(int argc, char** argv)
+static char* readFile(FILE* f)
 {
-	(void) argc;
-
-	fprintf(stderr,
-		"Usage: %s file\n"
-		,
-		argv[0]
-	);
+	fseek(f, 0, SEEK_END);
+	size_t size = ftell(f);
+	fseek(f, 0, SEEK_SET);
+	char* ret = malloc(size);
+	fread(ret, 1, size, f);
+	return ret;
 }
 
-int main(int argc, char** argv)
+static void computeFreqs(float freq[26], char* target, int length, int offset, int step)
 {
-	if (argc < 2)
-	{
-		usage(argc, argv);
-		exit(0);
-	}
-
-	FILE* f = fopen(argv[1], "r");
-	if (!f)
-	{
-		fprintf(stderr, "Could not open file '%s'\n", argv[1]);
-		exit(1);
-	}
-
-	float freq[26];
 	float total = 1;
-	while (1)
+	memset(freq, 0, 26*sizeof(float));
+	for (char* c = target; offset < length; offset += step, c += step)
 	{
-		char c = fgetc(f);
-		if (feof(f))
-			break;
+		if ('a' <= *c && *c <= 'z')
+			*c -= 'a' - 'A';
 
-		if ('a' <= c && c <= 'z')
-			c -= 'a' - 'A';
-		if ('A' <= c && c <= 'Z')
+		if ('A' <= *c && *c <= 'Z')
 		{
-			freq[c-'A']++;
+			freq[*c-'A']++;
 			total++;
 		}
 	}
-	fclose(f);
-
 	for (int i = 0; i < 26; i++)
 		freq[i] /= total;
+}
 
+static char bestShift(float freq[26])
+{
 	// Caesar Cipher: find the best shift
 	float best_score = 26; // one want to minimize this value
 	int best_shift = 0;
@@ -73,8 +58,60 @@ int main(int argc, char** argv)
 			best_shift = i;
 		}
 	}
+	return best_shift;
+}
 
-	printf("Excepted shift: %i\n", best_shift);
+static void usage(int argc, char** argv)
+{
+	(void) argc;
 
+	fprintf(stderr,
+		"Usage: %s keylen [file]\n"
+		"Performs a statical analysis on a file\n"
+		"\n"
+		"  keylen  assumed length of the key\n"
+		"  file    input file (default: stdin)\n"
+		,
+		argv[0]
+	);
+}
+
+int main(int argc, char** argv)
+{
+	if (argc < 2)
+	{
+		usage(argc, argv);
+		exit(0);
+	}
+
+	FILE* f = argc < 3 ? stdin : fopen(argv[2], "r");
+	if (!f)
+	{
+		fprintf(stderr, "Could not open file '%s'\n", argv[2]);
+		exit(1);
+	}
+	char* content = readFile(f);
+	size_t length = strlen(content);
+	fclose(f);
+
+	size_t keylen = atoi(argv[1]);
+	char* key = malloc(keylen+1);
+	key[keylen] = 0;
+
+	for (size_t i = 0; i < keylen; i++)
+	{
+		float freq[26];
+		computeFreqs(freq, content, length, i, keylen);
+		char shift = bestShift(freq);
+		key[i] = 'A' + shift;
+	}
+
+	if (keylen == 1)
+		printf("Excepted shift: %i\n", key[0] - 'A');
+	else
+		printf("Excepted key: %s\n", key);
+
+	free(key);
+	free(content);
 	return 0;
 }

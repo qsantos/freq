@@ -1,7 +1,8 @@
 CFLAGS  = -Wall -Wextra -Werror -pedantic -std=c99 -O3 -D_XOPEN_SOURCE=700
 LDFLAGS = -O3
+TARGETS = block alpha shift
 
-all: block alpha shift
+all: $(TARGETS)
 
 %: %.c
 	gcc $(LDFLAGS) $(CFLAGS) $^ -o $@
@@ -13,6 +14,6 @@ clean:
 	rm -f *.o
 
 destroy: clean
-	rm -f $(TARGET)
+	rm -f $(TARGETS)
 
 rebuild: destroy all

@@ -7,10 +7,10 @@ static void usage(int argc, char** argv)
 	(void) argc;
 
 	fprintf(stderr,
-		"Usage: %s shift [src [dst]]\n"
+		"Usage: %s key [src [dst]]\n"
 		"Encrypt a file with the Caesar or the Vigenère cipher\n"
 		"\n"
-		"  shift   integer for the Caesar shift value\n"
+		"  key     integer for the Caesar shift value\n"
 		"          string for the Vigenère key\n"
 		"  src     the source file (default: stdin)\n"
 		"  dst     the destination file (default: stdout)\n"
