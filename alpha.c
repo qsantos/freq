@@ -74,8 +74,6 @@ int main(int argc, char** argv)
 		}
 	}
 
-	for (int i = 0; i < 26; i++)
-		printf("%c: %f\n", 'A'+i, freq[i]);
 	printf("Excepted shift: %i\n", best_shift);
 
 	return 0;
