@@ -20,26 +20,29 @@ static char* readFile(FILE* f)
 	return ret;
 }
 
-static void computeFreqs(float freq[26], char* target, int step)
+static void computeFreqs(float freq[26], char* target, int offset, int step)
 {
 	float total = 1;
 	memset(freq, 0, 26*sizeof(float));
-	int i = 0;
-	for (char* c = target; *c; c++)
+	int i = 0; // current position in the key
+
+	char* c = target;
+	for (; *c && offset; c++)
+		if (('A' <= *c && *c <= 'Z') || ('a' <= *c && *c <= 'z'))
+			offset--;
+	for (; *c; c++)
 	{
 		if ('a' <= *c && *c <= 'z')
 			*c -= 'a' - 'A';
 
-		if ('A' <= *c && *c <= 'Z')
+		if ('A' <= *c && *c <= 'Z' && i++ == 0)
 		{
-			if (i == 0)
-			{
-				freq[*c-'A']++;
-				total++;
-			}
-			if (++i == step)
-				i = 0;
+			freq[*c-'A']++;
+			total++;
 		}
+
+		if (i >= step)
+			i = 0;
 	}
 	for (int i = 0; i < 26; i++)
 		freq[i] /= total;
@@ -106,7 +109,7 @@ int main(int argc, char** argv)
 	for (size_t i = 0; i < keylen; i++)
 	{
 		float freq[26];
-		computeFreqs(freq, content+i, keylen);
+		computeFreqs(freq, content, i, keylen);
 		key[i] = 'A' + bestShift(freq);
 	}
 
