@@ -22,6 +22,7 @@ static void swap(char* a, char* b, size_t blocksize, char* buffer)
 
 static void quicksort(char* left, char* right, size_t blocksize, char* buffer)
 {
+	printf("quicksort(%p, %p, %i, %p)\n", left, right, blocksize, buffer);
 	if (left >= right)
 		return;
 	
@@ -29,6 +30,9 @@ static void quicksort(char* left, char* right, size_t blocksize, char* buffer)
 	// (somewhat around the middle)
 	// left+right / 2 may overflow size_t
 	char* pivotIdx = (char*) ((size_t)left + blocksize  *  (((size_t)right-(size_t)left)/2 / blocksize));
+	printf("%p\n", pivotIdx);
+	printf("v = 0x");for(size_t i=0;i<blocksize;i++)printf("%.2x",(u8)pivotIdx[i]);printf("\n");
+	printf("v = 0x");for(size_t i=0;i<blocksize;i++)printf("%.2x",(u8)right[i]);printf("\n");
 	swap(pivotIdx, right, blocksize, buffer);
 
 	char* pivotValue = right;
@@ -39,10 +43,10 @@ static void quicksort(char* left, char* right, size_t blocksize, char* buffer)
 			swap(i, storeIndex, blocksize, buffer);
 			storeIndex += blocksize;
 		}
+	printf("%p\n", storeIndex);
 	swap(storeIndex, right, blocksize, buffer);
 
-	if (storeIndex > left)
-		quicksort(left, storeIndex - blocksize, blocksize, buffer);
+	quicksort(left, storeIndex - blocksize, blocksize, buffer);
 	quicksort(storeIndex + blocksize, right, blocksize, buffer);
 }
 
@@ -103,6 +107,7 @@ int main(int argc, char** argv)
 
 	// sort all that random data
 	quicksort(content, content + size - blocksize, blocksize, buffer);
+	printf("Sorted\n");
 
 
 	// count similar blocks
