@@ -76,7 +76,7 @@ static void usage(int argc, char** argv)
 
 	fprintf(stderr,
 		"Usage: %s keylen file\n"
-		"Performs a statical analysis on a file\n"
+		"Find the most probable key for a Caesar or a Vigenère cipher.\n"
 		"\n"
 		"  keylen  assumed length of the key\n"
 		"  file    input file\n"
@@ -114,9 +114,9 @@ int main(int argc, char** argv)
 	}
 
 	if (keylen == 1)
-		printf("Excepted shift: %i\n", key[0] - 'A');
+		printf("%i\n", key[0] - 'A');
 	else
-		printf("Excepted key: %s\n", key);
+		printf("%s\n", key);
 
 	free(key);
 	free(content);
