@@ -7,13 +7,16 @@ static void usage(int argc, char** argv)
 	(void) argc;
 
 	fprintf(stderr,
-		"Usage: %s key [src [dst]]\n"
+		"Usage: %s [OPTIONS] key [src [dst]]\n"
 		"Encrypt a file with the Caesar or the Vigenère cipher\n"
 		"\n"
 		"  key     integer for the Caesar shift value\n"
 		"          string for the Vigenère key\n"
 		"  src     the source file (default: stdin)\n"
 		"  dst     the destination file (default: stdout)\n"
+		"\n"
+		"OPTIONS:\n"
+		"  --reverse, -r  uses the key to decrypt\n"
 		,
 		argv[0]
 	);
@@ -21,46 +24,69 @@ static void usage(int argc, char** argv)
 
 int main(int argc, char** argv)
 {
-	if (argc < 2)
+	char encrypt = 1;
+	int curarg = 1;
+	char* option = argv[curarg];
+	if (strcmp(option, "--help") == 0 || strcmp(option, "-h") == 0)
 	{
+		usage(argc, argv);
+		exit(0);
+		curarg++;
+	}
+	else if (strcmp(option, "--reverse") == 0 || strcmp(option, "-r") == 0)
+	{
+		encrypt = 0;
+		curarg++;
+	}
+
+	if (curarg == argc)
+	{
+		fprintf(stderr, "I need a key\n\n");
 		usage(argc, argv);
 		exit(0);
 	}
 
-	FILE* src = argc < 3 ? stdin : fopen(argv[2], "r");
+	char* key = argv[curarg++];
+
+	FILE* src = curarg < argc ? fopen(argv[curarg++], "r") : stdin;
 	if (!src)
 	{
-		fprintf(stderr, "Could not open file '%s'\n", argv[2]);
+		fprintf(stderr, "Could not open file '%s' for reading\n", argv[curarg]);
 		exit(1);
 	}
 
-	FILE* dst = argc < 4 ? stdout : fopen(argv[3], "w");
+	FILE* dst = curarg < argc ? fopen(argv[curarg++], "w") : stdout;
 	if (!dst)
 	{
-		fprintf(stderr, "Could not open file '%s'\n", argv[3]);
+		fprintf(stderr, "Could not open file '%s' for writing\n", argv[curarg]);
 		exit(1);
 	}
 
-	char* shift = argv[1];
-	int decimal = atoi(argv[1]);
+	int decimal = atoi(key);
 	int len;
 	if (decimal)
 	{
 		len = 1;
-		shift[0] = decimal;
+		if (encrypt == 0)
+			decimal = 26 - decimal;
+
+		decimal %= 26;
+		if (decimal < 0)
+			decimal += 26;
+		key[0] = decimal;
 	}
 	else
 	{
 		len = 0;
-		for (char* c = shift; *c; c++, len++)
+		for (char* c = key; *c; c++, len++)
 		{
 			if ('A' <= *c && *c <= 'Z')
-				*c -= 'A';
+				*c = encrypt ? *c - 'A' + 1 : (26 - *c + 'A' - 1);
 			else if ('a' <= *c && *c <= 'z')
-				*c -= 'a';
+				*c = encrypt ? *c - 'a' + 1 : (26 - *c + 'A' - 1);
 			else
 			{
-				fprintf(stderr, "Sorry, I could not understand the shift\n");
+				fprintf(stderr, "Sorry, I could not understand the key\n");
 				exit(1);
 			}
 		}
@@ -72,9 +98,9 @@ int main(int argc, char** argv)
 		if (feof(src))
 			break;
 		if ('A' <= c && c <= 'Z')
-			fputc('A' + ((c+shift[s] - 'A')%26), dst);
+			fputc('A' + ((c+key[s] - 'A')%26), dst);
 		else if ('a' <= c && c <= 'z')
-			fputc('a' + ((c+shift[s] - 'a')%26), dst);
+			fputc('a' + ((c+key[s] - 'a')%26), dst);
 		else
 			fputc(c, dst);
 		if (++s >= len)
