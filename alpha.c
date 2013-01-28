@@ -20,19 +20,25 @@ static char* readFile(FILE* f)
 	return ret;
 }
 
-static void computeFreqs(float freq[26], char* target, int length, int offset, int step)
+static void computeFreqs(float freq[26], char* target, int step)
 {
 	float total = 1;
 	memset(freq, 0, 26*sizeof(float));
-	for (char* c = target; offset < length; offset += step, c += step)
+	int i = 0;
+	for (char* c = target; *c; c++)
 	{
 		if ('a' <= *c && *c <= 'z')
 			*c -= 'a' - 'A';
 
 		if ('A' <= *c && *c <= 'Z')
 		{
-			freq[*c-'A']++;
-			total++;
+			if (i == 0)
+			{
+				freq[*c-'A']++;
+				total++;
+			}
+			if (++i == step)
+				i = 0;
 		}
 	}
 	for (int i = 0; i < 26; i++)
@@ -91,7 +97,6 @@ int main(int argc, char** argv)
 		exit(1);
 	}
 	char* content = readFile(f);
-	size_t length = strlen(content);
 	fclose(f);
 
 	size_t keylen = atoi(argv[1]);
@@ -101,10 +106,10 @@ int main(int argc, char** argv)
 	for (size_t i = 0; i < keylen; i++)
 	{
 		float freq[26];
-		computeFreqs(freq, content, length, i, keylen);
+		computeFreqs(freq, content+i, keylen);
 		char shift = bestShift(freq);
 		printf("%i\n", shift);
-		key[i] = 'A' + shift;
+		key[i] = 'Z' - shift + 1;
 	}
 
 	if (keylen == 1)
