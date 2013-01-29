@@ -1,6 +1,6 @@
 CFLAGS  = -Wall -Wextra -Werror -pedantic -std=c99 -O3 -D_XOPEN_SOURCE=700
 LDFLAGS = -O3
-TARGETS = block alpha shift
+TARGETS = block alpha shift subst
 
 all: $(TARGETS)
 

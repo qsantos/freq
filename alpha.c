@@ -10,8 +10,9 @@ static char* readFile(FILE* f)
 	fseek(f, 0, SEEK_END);
 	size_t size = ftell(f);
 	fseek(f, 0, SEEK_SET);
-	char* ret = malloc(size);
+	char* ret = malloc(size+1);
 	fread(ret, 1, size, f);
+	ret[size] = 0;
 	return ret;
 }
 
