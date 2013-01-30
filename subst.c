@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#define LANG english
+
 static char* readFile(FILE* f)
 {
 	fseek(f, 0, SEEK_END);
@@ -80,7 +82,7 @@ int main(int argc, char** argv)
 	char* content = readFile(src);
 	fclose(src);
 
-	static const char french[26] = "esaitnrulodmcpvqfgbhjxyzkw";
+	static const char LANG[26] = "ESAITNRULODMCPVQFGBHJXYZKW";
 	static const char I[26] =
 	{
 			 0,  1,  2,  3,  4,  5,  6,  7,
@@ -97,7 +99,7 @@ int main(int argc, char** argv)
 
 	char S[26];
 	for (int i = 0; i < 26; i++)
-		S[(int)T[i]] = french[i];
+		S[(int)T[i]] = LANG[i];
 
 	FILE* dst = argc >= 3 ? fopen(argv[2], "w") : stdout;
 	if (!dst)

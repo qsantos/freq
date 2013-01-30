@@ -1,18 +1,27 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
 
-#define LANG french
+#define LANG english
 #include "freq.h" // letter frequencies
 
 static char* readFile(FILE* f)
 {
-	fseek(f, 0, SEEK_END);
-	size_t size = ftell(f);
-	fseek(f, 0, SEEK_SET);
-	char* ret = malloc(size+1);
-	fread(ret, 1, size, f);
-	ret[size] = 0;
+	size_t a_ret = 1;
+	size_t n_ret = 0;
+	char* ret = (char*) malloc(a_ret);
+	assert(ret);
+	while (1)
+	{
+		n_ret += fread(ret, 1, a_ret-n_ret, f);
+		if (feof(f))
+			break;
+		a_ret *= 2;
+		ret = (char*) realloc(ret, a_ret);
+		assert(ret);
+	}
+	ret[n_ret] = 0;
 	return ret;
 }
 
@@ -71,11 +80,16 @@ static void usage(int argc, char** argv)
 	(void) argc;
 
 	fprintf(stderr,
-		"Usage: %s keylen file\n"
+		"Usage: %s MODE keylen [file]\n"
 		"Find the most probable key for a Caesar or a Vigenère cipher.\n"
 		"\n"
-		"  keylen  assumed length of the key\n"
-		"  file    input file\n"
+		"MODE:\n"
+		"  --freqs,   -f  prints the letter frequencies of the text\n"
+		"  --shift,   -s  find the most probable key for a Caesar or a\n"
+		"                 Vigenère cipher, the assumed key length is to be\n"
+		"                 provided.\n"
+		"  --version, -v  prints information about this program\n"
+		"  --help,    -h  prints this help page\n"
 		,
 		argv[0]
 	);
@@ -83,38 +97,98 @@ static void usage(int argc, char** argv)
 
 int main(int argc, char** argv)
 {
-	if (argc < 3)
+	if (argc == 1)
 	{
 		usage(argc, argv);
 		exit(0);
 	}
 
-	FILE* f = fopen(argv[2], "r");
+	int curarg = 1;
+	char* option = argv[curarg++];
+	char freq = 0;
+	if (strcmp(option, "--version") == 0 || strcmp(option, "-v") == 0)
+	{
+		fprintf(stderr, "alpha 0.1\n");
+		fprintf(stderr, "Compiled on %s at %s\n", __DATE__, __TIME__);
+		exit(0);
+	}
+	else if (strcmp(option, "--help") == 0 || strcmp(option, "-h") == 0)
+	{
+		usage(argc, argv);
+		exit(0);
+	}
+	else if (strcmp(option, "--freqs") == 0 || strcmp(option, "-f") == 0)
+	{
+		freq = 1;
+	}
+	else if (strcmp(option, "--shift") == 0 || strcmp(option, "-s") == 0)
+	{
+		freq = 0;
+	}
+	else
+	{
+		fprintf(stderr, "Invalid mode '%s'\n\n", option);
+		usage(argc, argv);
+		exit(1);
+	}
+
+	if (curarg >= argc)
+	{
+		fprintf(stderr, "Missing key length\n\n");
+		usage(argc, argv);
+		exit(1);
+	}
+
+	size_t keylen = atoi(argv[curarg++]);
+
+	if (curarg >= argc)
+	{
+		fprintf(stderr, "Missing input file\n\n");
+		usage(argc, argv);
+		exit(1);
+	}
+
+	FILE* f = curarg < argc ? fopen(argv[curarg++], "r") : stdin;
 	if (!f)
 	{
-		fprintf(stderr, "Could not open file '%s'\n", argv[2]);
+		fprintf(stderr, "Could not open file '%s'\n", argv[curarg-1]);
 		exit(1);
 	}
 	char* content = readFile(f);
 	fclose(f);
 
-	size_t keylen = atoi(argv[1]);
-	char* key = malloc(keylen+1);
-	key[keylen] = 0;
-
-	for (size_t i = 0; i < keylen; i++)
+	if (freq)
 	{
-		float freq[26];
-		computeFreqs(freq, content, i, keylen);
-		key[i] = 'A' + bestShift(freq);
+		for (size_t i = 0; i < keylen; i++)
+		{
+			float freq[26];
+			computeFreqs(freq, content, i, keylen);
+			printf("Offset %i\n", i);
+			for (size_t j = 0; j < 26; j++)
+				printf("%f  %c\n", freq[j], 'A'+j);
+			printf("\n");
+		}
+	}
+	else
+	{
+		char* key = malloc(keylen+1);
+		key[keylen] = 0;
+
+		for (size_t i = 0; i < keylen; i++)
+		{
+			float freq[26];
+			computeFreqs(freq, content, i, keylen);
+			key[i] = 'A' + bestShift(freq);
+		}
+
+		if (keylen == 1)
+			printf("%i\n", key[0] - 'A');
+		else
+			printf("%s\n", key);
+
+		free(key);
 	}
 
-	if (keylen == 1)
-		printf("%i\n", key[0] - 'A');
-	else
-		printf("%s\n", key);
-
-	free(key);
 	free(content);
 	return 0;
 }

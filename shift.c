@@ -17,6 +17,8 @@ static void usage(int argc, char** argv)
 		"\n"
 		"OPTIONS:\n"
 		"  --reverse, -r  uses the key to decrypt\n"
+		"  --version, -v  prints information about this program\n"
+		"  --help,    -h  prints this page of help\n"
 		,
 		argv[0]
 	);
@@ -24,14 +26,25 @@ static void usage(int argc, char** argv)
 
 int main(int argc, char** argv)
 {
-	char encrypt = 1;
-	int curarg = 1;
-	char* option = argv[curarg];
-	if (strcmp(option, "--help") == 0 || strcmp(option, "-h") == 0)
+	if (argc == 1)
 	{
 		usage(argc, argv);
 		exit(0);
-		curarg++;
+	}
+
+	char encrypt = 1;
+	int curarg = 1;
+	char* option = argv[curarg];
+	if (strcmp(option, "--version") == 0 || strcmp(option, "-v") == 0)
+	{
+		fprintf(stderr, "shift 0.1\n");
+		fprintf(stderr, "Compiled on %s the %s\n", __DATE__, __TIME__);
+		exit(0);
+	}
+	else if (strcmp(option, "--help") == 0 || strcmp(option, "-h") == 0)
+	{
+		usage(argc, argv);
+		exit(0);
 	}
 	else if (strcmp(option, "--reverse") == 0 || strcmp(option, "-r") == 0)
 	{
@@ -39,7 +52,7 @@ int main(int argc, char** argv)
 		curarg++;
 	}
 
-	if (curarg == argc)
+	if (curarg >= argc)
 	{
 		fprintf(stderr, "I need a key\n\n");
 		usage(argc, argv);
@@ -51,14 +64,14 @@ int main(int argc, char** argv)
 	FILE* src = curarg < argc ? fopen(argv[curarg++], "r") : stdin;
 	if (!src)
 	{
-		fprintf(stderr, "Could not open file '%s' for reading\n", argv[curarg]);
+		fprintf(stderr, "Could not open file '%s' for reading\n", argv[curarg-1]);
 		exit(1);
 	}
 
 	FILE* dst = curarg < argc ? fopen(argv[curarg++], "w") : stdout;
 	if (!dst)
 	{
-		fprintf(stderr, "Could not open file '%s' for writing\n", argv[curarg]);
+		fprintf(stderr, "Could not open file '%s' for writing\n", argv[curarg-1]);
 		exit(1);
 	}
 
