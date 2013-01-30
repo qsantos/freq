@@ -141,13 +141,6 @@ int main(int argc, char** argv)
 
 	size_t keylen = atoi(argv[curarg++]);
 
-	if (curarg >= argc)
-	{
-		fprintf(stderr, "Missing input file\n\n");
-		usage(argc, argv);
-		exit(1);
-	}
-
 	FILE* f = curarg < argc ? fopen(argv[curarg++], "r") : stdin;
 	if (!f)
 	{
