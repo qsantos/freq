@@ -1,5 +1,5 @@
 /*\
- *  This is an awesome programm simulating awesome battles of awesome robot tanks
+ *  Simple frequency analasys tool for cryptography
  *  Copyright (C) 2013  Quentin SANTOS
  *
  *  This program is free software: you can redistribute it and/or modify
