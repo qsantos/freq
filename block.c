@@ -21,51 +21,10 @@
 #include <string.h>
 #include <assert.h>
 
-typedef unsigned char u8;
-
-static char bstrncmp(const char* a, const char* b, size_t n)
+size_t blocksize;
+int block_cmp(const void* a, const void* b)
 {
-	for (; n; n--, a++, b++)
-		if (*a != *b) 
-			return *(u8*)a < *(u8*)b ? -1 : 1;
-	return 0;
-}
-
-static void swap(char* a, char* b, size_t blocksize, char* buffer)
-{
-	memcpy(buffer, a,      blocksize);
-	memcpy(a,      b,      blocksize);
-	memcpy(b,      buffer, blocksize);
-}
-
-static void quicksort(char* left, char* right, size_t blocksize, char* buffer)
-{
-	printf("quicksort(%p, %p, %i, %p)\n", left, right, blocksize, buffer);
-	if (left >= right)
-		return;
-	
-	// computes some blocksize-aligned index in the left-right range
-	// (somewhat around the middle)
-	// left+right / 2 may overflow size_t
-	char* pivotIdx = (char*) ((size_t)left + blocksize  *  (((size_t)right-(size_t)left)/2 / blocksize));
-	printf("%p\n", pivotIdx);
-	printf("v = 0x");for(size_t i=0;i<blocksize;i++)printf("%.2x",(u8)pivotIdx[i]);printf("\n");
-	printf("v = 0x");for(size_t i=0;i<blocksize;i++)printf("%.2x",(u8)right[i]);printf("\n");
-	swap(pivotIdx, right, blocksize, buffer);
-
-	char* pivotValue = right;
-	char* storeIndex = left;
-	for (char* i = left; i < right; i += blocksize)
-		if (bstrncmp(i, pivotValue, blocksize) < 0)
-		{
-			swap(i, storeIndex, blocksize, buffer);
-			storeIndex += blocksize;
-		}
-	printf("%p\n", storeIndex);
-	swap(storeIndex, right, blocksize, buffer);
-
-	quicksort(left, storeIndex - blocksize, blocksize, buffer);
-	quicksort(storeIndex + blocksize, right, blocksize, buffer);
+	return memcmp(a, b, blocksize);
 }
 
 static void usage(int argc, char** argv)
@@ -105,8 +64,8 @@ int main(int argc, char** argv)
 
 
 	// initialize parameters
-	size_t blocksize = atoll(argv[1]);
-	char*  buffer    = malloc(blocksize);
+	blocksize = atoll(argv[1]);
+	char*  buffer = malloc(blocksize);
 	assert(buffer);
 
 
@@ -124,8 +83,7 @@ int main(int argc, char** argv)
 
 
 	// sort all that random data
-	quicksort(content, content + size - blocksize, blocksize, buffer);
-	printf("Sorted\n");
+	qsort(content, size/blocksize, blocksize, block_cmp);
 
 
 	// count similar blocks
@@ -135,9 +93,9 @@ int main(int argc, char** argv)
 
 	size_t  cur_count = 0;
 	char*   cur_block = content;
-	for (char* block = content; block <= content + size - blocksize; block += blocksize)
+	for (char* block = content; block < content + size; block += blocksize)
 	{
-		if (bstrncmp(block, cur_block, blocksize) != 0)
+		if (memcmp(block, cur_block, blocksize) != 0)
 		{
 			if (n_counts >= a_counts)
 			{
@@ -159,7 +117,7 @@ int main(int argc, char** argv)
 	{
 		printf("%u ", counts[i]);
 		for (size_t j = 0; j < blocksize; j++)
-			printf("%.2x", (u8) content[blocksize*i+j]);
+			printf("%.2x", (unsigned char) content[blocksize*i+j]);
 		printf("\n");
 	}
 
@@ -167,4 +125,4 @@ int main(int argc, char** argv)
 	free(content);
 	free(buffer);
 	return 0;
-}
+

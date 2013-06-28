@@ -61,6 +61,16 @@ static void computeFreqs(float freq[26], char* target, int offset, int step)
 		freq[i] /= total;
 }
 
+float freq[26];
+int compare(const void* a, const void* b)
+{
+	float fa = freq[(int)(*(char*)a)];
+	float fb = freq[(int)(*(char*)b)];
+	return fa > fb ? -1 :
+	       fa < fb ?  1 :
+	       0;
+}
+
 static void usage(int argc, char** argv)
 {
 	(void) argc;
@@ -71,16 +81,6 @@ static void usage(int argc, char** argv)
 		,
 		argv[0]
 	);
-}
-
-float freq[26];
-int compare(const void* a, const void* b)
-{
-	float fa = freq[(int)(*(char*)a)];
-	float fb = freq[(int)(*(char*)b)];
-	return fa > fb ? -1 :
-	       fa < fb ?  1 :
-	       0;
 }
 
 int main(int argc, char** argv)
