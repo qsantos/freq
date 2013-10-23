@@ -174,9 +174,9 @@ int main(int argc, char** argv)
 		{
 			float freq[26];
 			computeFreqs(freq, content, i, keylen);
-			printf("Offset %i\n", i);
+			printf("Offset %zu\n", i);
 			for (size_t j = 0; j < 26; j++)
-				printf("%f  %c\n", freq[j], 'A'+j);
+				printf("%f  %c\n", freq[j], (char)('A'+j));
 			printf("\n");
 		}
 	}

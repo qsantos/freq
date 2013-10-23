@@ -115,7 +115,7 @@ int main(int argc, char** argv)
 
 	for (size_t i = 0; i < n_counts; i++)
 	{
-		printf("%u ", counts[i]);
+		printf("%zu ", counts[i]);
 		for (size_t j = 0; j < blocksize; j++)
 			printf("%.2x", (unsigned char) content[blocksize*i+j]);
 		printf("\n");
@@ -125,4 +125,4 @@ int main(int argc, char** argv)
 	free(content);
 	free(buffer);
 	return 0;
-
+}
