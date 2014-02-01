@@ -93,10 +93,8 @@ static char bestShift(float freq[26])
 	return best_shift;
 }
 
-static void usage(int argc, char** argv)
+static void usage(const char* name)
 {
-	(void) argc;
-
 	fprintf(stderr,
 		"Usage: %s MODE keylen [file]\n"
 		"Find the most probable key for a Caesar or a Vigenère cipher.\n"
@@ -108,18 +106,14 @@ static void usage(int argc, char** argv)
 		"                 provided.\n"
 		"  --version, -v  prints information about this program\n"
 		"  --help,    -h  prints this help page\n"
-		,
-		argv[0]
-	);
+		, name);
+	exit(1);
 }
 
 int main(int argc, char** argv)
 {
 	if (argc == 1)
-	{
-		usage(argc, argv);
-		exit(0);
-	}
+		usage(argv[0]);
 
 	int curarg = 1;
 	char* option = argv[curarg++];
@@ -132,8 +126,7 @@ int main(int argc, char** argv)
 	}
 	else if (strcmp(option, "--help") == 0 || strcmp(option, "-h") == 0)
 	{
-		usage(argc, argv);
-		exit(0);
+		usage(argv[0]);
 	}
 	else if (strcmp(option, "--freqs") == 0 || strcmp(option, "-f") == 0)
 	{
@@ -146,15 +139,13 @@ int main(int argc, char** argv)
 	else
 	{
 		fprintf(stderr, "Invalid mode '%s'\n\n", option);
-		usage(argc, argv);
-		exit(1);
+		usage(argv[0]);
 	}
 
 	if (curarg >= argc)
 	{
 		fprintf(stderr, "Missing key length\n\n");
-		usage(argc, argv);
-		exit(1);
+		usage(argv[0]);
 	}
 
 	size_t keylen = atoi(argv[curarg++]);

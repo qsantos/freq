@@ -27,27 +27,23 @@ int block_cmp(const void* a, const void* b)
 	return memcmp(a, b, blocksize);
 }
 
-static void usage(int argc, char** argv)
+static void usage(const char* name)
 {
-	(void) argc;
-
 	fprintf(stderr,
 		"Usage: %s blocksize file\n"
 		"\n"
 		"PARAMS:\n"
 		" blocksize  the byte-length of blocks\n"
 		" file       the name of the file to be analyzed\n"
-		,
-		argv[0]
-	);
+		, name);
+	exit(1);
 }
 
 int main(int argc, char** argv)
 {
 	if (argc <= 1 || strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0)
 	{
-		usage(argc, argv);
-		exit(0);
+		usage(argv[0]);
 	}
 	else if (strcmp(argv[1], "--version") == 0 || strcmp(argv[1], "-v") == 0)
 	{
@@ -57,10 +53,7 @@ int main(int argc, char** argv)
 	}
 
 	if (argc < 3)
-	{
-		usage(argc, argv);
-		exit(1);
-	}
+		usage(argv[0]);
 
 
 	// initialize parameters

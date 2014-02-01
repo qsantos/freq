@@ -71,25 +71,19 @@ int compare(const void* a, const void* b)
 	       0;
 }
 
-static void usage(int argc, char** argv)
+static void usage(const char* name)
 {
-	(void) argc;
-
 	fprintf(stderr,
 		"Usage: %s src [dst]\n"
 		"Find the most probable substitution\n"
-		,
-		argv[0]
-	);
+		, name);
+	exit(1);
 }
 
 int main(int argc, char** argv)
 {
 	if (argc < 2)
-	{
-		usage(argc, argv);
-		exit(0);
-	}
+		usage(argv[0]);
 
 	FILE* src = fopen(argv[1], "r");
 	if (!src)

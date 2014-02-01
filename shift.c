@@ -20,10 +20,8 @@
 #include <stdio.h>
 #include <string.h>
 
-static void usage(int argc, char** argv)
+static void usage(const char* name)
 {
-	(void) argc;
-
 	fprintf(stderr,
 		"Usage: %s [OPTIONS] key [src [dst]]\n"
 		"Encrypt a file with the Caesar or the Vigenère cipher\n"
@@ -37,18 +35,14 @@ static void usage(int argc, char** argv)
 		"  --reverse, -r  uses the key to decrypt\n"
 		"  --version, -v  prints information about this program\n"
 		"  --help,    -h  prints this page of help\n"
-		,
-		argv[0]
-	);
+		, name);
+	exit(1);
 }
 
 int main(int argc, char** argv)
 {
 	if (argc == 1)
-	{
-		usage(argc, argv);
-		exit(0);
-	}
+		usage(argv[0]);
 
 	char encrypt = 1;
 	int curarg = 1;
@@ -61,8 +55,7 @@ int main(int argc, char** argv)
 	}
 	else if (strcmp(option, "--help") == 0 || strcmp(option, "-h") == 0)
 	{
-		usage(argc, argv);
-		exit(0);
+		usage(argv[0]);
 	}
 	else if (strcmp(option, "--reverse") == 0 || strcmp(option, "-r") == 0)
 	{
@@ -73,8 +66,7 @@ int main(int argc, char** argv)
 	if (curarg >= argc)
 	{
 		fprintf(stderr, "I need a key\n\n");
-		usage(argc, argv);
-		exit(0);
+		usage(argv[0]);
 	}
 
 	char* key = argv[curarg++];
