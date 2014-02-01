@@ -58,8 +58,6 @@ int main(int argc, char** argv)
 
 	// initialize parameters
 	blocksize = atoll(argv[1]);
-	char*  buffer = malloc(blocksize);
-	assert(buffer);
 
 
 	// load the file
@@ -69,8 +67,7 @@ int main(int argc, char** argv)
 	size_t size = ftell(f);
 	fseek(f, 0, SEEK_SET);
 
-	char* content = malloc(size);
-	assert(content);
+	char content[size];
 	fread(content, 1, size, f);
 	fclose(f);
 
@@ -121,7 +118,5 @@ int main(int argc, char** argv)
 	}
 
 	free(counts);
-	free(content);
-	free(buffer);
 	return 0;
 }
