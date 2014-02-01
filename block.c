@@ -108,10 +108,16 @@ int main(int argc, char** argv)
 
 	for (size_t i = 0; i < n_counts; i++)
 	{
-		printf("%zu ", counts[i]);
+		printf("%7zu  ", counts[i]);
 		for (size_t j = 0; j < blocksize; j++)
-			printf("%.2x", (unsigned char) content[blocksize*i+j]);
-		printf("\n");
+			printf("%.2x ", (unsigned char) content[blocksize*i+j]);
+		printf(" \"");
+		for (size_t j = 0; j < blocksize; j++)
+		{
+			char c = content[blocksize*i+j];
+			printf("%c", c >= 32 ? c : '.');
+		}
+		printf("\"\n");
 	}
 
 	free(counts);
